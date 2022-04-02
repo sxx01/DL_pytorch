@@ -77,9 +77,11 @@ def softmax(X):
     return X_exp / partition
 
 
-# def net(X):
-#     return softmax(torch.matmul(X.reshape((-1, W.shape[0])), W) + b)
-net = nn.Sequential(nn.Flatten(), nn.Linear(784, 10))
+def net(X):
+    return softmax(torch.matmul(X.reshape((-1, W.shape[0])), W) + b)
+
+
+# net = nn.Sequential(nn.Flatten(), nn.Linear(784, 10))
 
 
 def cross_entropy(y_hat, y):
@@ -176,13 +178,17 @@ class Animator:
             if a is not None and b is not None:
                 self.X[i].append(a)
                 self.Y[i].append(b)
-        self.axes.cla()
+        # self.axes.cla()
+        plt.clf()
         for x, y, fmt in zip(self.X, self.Y, self.fmts):
-            self.axes.plot(x, y, fmt)
-        self.config_axes()
+            # self.axes.plot(x, y, fmt)
+            plt.plot(x, y, fmt)
+        # self.config_axes()
+        self.axes.set(xlabel='epoch', ylabel=None, xscale='linear',
+                      yscale='linear')
+        plt.show()
         display.display(self.fig)
         display.clear_output(wait=True)
-        plt.show()
 
 
 def train_ch3(net, train_iter, test_iter, loss, num_epochs, updater):
