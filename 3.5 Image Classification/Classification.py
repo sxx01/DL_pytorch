@@ -77,12 +77,17 @@ def softmax(X):
     return X_exp / partition
 
 
-def net(X):
-    return softmax(torch.matmul(X.reshape((-1, W.shape[0])), W) + b)
+# def net(X):
+#     return softmax(torch.matmul(X.reshape((-1, W.shape[0])), W) + b)
 
 
-# net = nn.Sequential(nn.Flatten(), nn.Linear(784, 10))
+net = nn.Sequential(nn.Flatten(), nn.Linear(784, 10))
 
+def init_weights(m):
+    if type(m) == nn.Linear:
+        nn.init.normal_(m.weight, std=0.01)
+
+net.apply(init_weights)
 
 def cross_entropy(y_hat, y):
     return -torch.log(y_hat[range(len(y_hat)), y])
@@ -217,6 +222,8 @@ lr = 0.1
 def updater(batch_size):
     return sgd([W, b], lr, batch_size)
 
-
+loss = nn.CrossEntropyLoss(reduction='none')
+trainer = torch.optim.SGD(net.parameters(), lr=0.1)
 num_epochs = 10
-train_ch3(net, train_iter, test_iter, cross_entropy, num_epochs, updater)
+# train_ch3(net, train_iter, test_iter, cross_entropy, num_epochs, updater)
+train_ch3(net, train_iter, test_iter, loss, num_epochs, trainer)
