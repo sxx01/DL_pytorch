@@ -34,7 +34,8 @@ import pandas as pd
 import requests
 from IPython import display
 from matplotlib import pyplot as plt
-from matplotlib import backend_inline
+
+# from matplotlib import backend_inline
 
 d2l = sys.modules[__name__]
 
@@ -52,7 +53,7 @@ def use_svg_display():
     """Use the svg format to display a plot in Jupyter.
 
     Defined in :numref:`sec_calculus`"""
-    backend_inline.set_matplotlib_formats('svg')
+    display.set_matplotlib_formats('svg')
 
 
 def set_figsize(figsize=(3.5, 2.5)):
@@ -2868,6 +2869,39 @@ def train_ch6(net, train_iter, test_iter, num_epochs, lr, device):
           f'test acc {test_acc:.3f}')
     print(f'{metric[2] * num_epochs / timer.sum():.1f} examples/sec '
           f'on {str(device)}')
+
+
+def train_epoch_ch3(net, train_iter, loss, updater):
+    if isinstance(net, torch.nn.Module):
+        net.train()
+    metric = Accumulator(3)  # 训练损失总和, 训练准确度总和, 样本数
+    for X, y in train_iter:
+        y_hat = net(X)
+        l = loss(y_hat, y)
+        if isinstance(updater, torch.optim.Optimizer):
+            updater.zero_grad()
+            l.mean().backward()
+            updater.step()
+        else:
+            l.sum().backward()
+            updater(X.shape[0])
+        metric.add(float(l.sum()), accuracy(y_hat, y), y.numel())
+    return metric[0] / metric[2], metric[1] / metric[2]
+
+
+def train_ch3(net, train_iter, test_iter, loss, num_epochs, updater):
+    # animator = Animator(xlabel='epoch', xlim=[1, num_epochs], ylim=[0.3, 0.9],
+    #                     legend=['train loss', 'train acc', 'test acc'])
+    for epoch in range(num_epochs):
+        train_meatrics = train_epoch_ch3(net, train_iter, loss, updater)
+        test_acc = evaluate_accuracy_gpu(net, test_iter)
+        print(
+            f"Epoch: {epoch + 1}, Train Loss: {train_meatrics[0]}, Train Accu: {train_meatrics[1]}, Test Accu: {test_acc}")
+        # animator.add(epoch + 1, train_meatrics + (test_acc,))
+    train_loss, train_acc = train_meatrics
+    assert train_loss < 0.5, train_loss
+    assert train_acc <= 1 and train_acc > 0.7, train_acc
+    assert test_acc <= 1 and test_acc > 0.7, test_acc
 
 
 def linreg(X, w, b):
