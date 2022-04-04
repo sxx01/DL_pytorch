@@ -42,4 +42,4 @@ for epo in range(epoch_num):
         l.backward()
         trainer.step()
     l = loss(net(features), labels)
-    print(f"epoch: {epo + 1}, loss: {l}")
+    print(f"epoch: {epo+1}, loss: {l}")
