@@ -2782,7 +2782,7 @@ def get_dataloader_workers():
     """Use 4 processes to read the data.
 
     Defined in :numref:`sec_utils`"""
-    return 4
+    return 0
 
 
 def load_data_fashion_mnist(batch_size, resize=None):
